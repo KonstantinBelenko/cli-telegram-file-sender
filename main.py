@@ -7,12 +7,19 @@ Allows a user to send files through telegram right from their cli.
 from telethon import TelegramClient, utils
 import asyncio
 import argparse
+import os
 
-api_id = '<your api id>'
-api_hash = '<your api hash>'
+api_id = '<app id>'
+api_hash = '<app hash>'
+home = os.path.expanduser("~")
+session_path = os.path.join(home, ".telegram_file_sender/session_name")
+
+session_folder = os.path.join(home, ".telegram_file_sender")
+if not os.path.exists(session_folder):
+    os.makedirs(session_folder)
 
 async def main(file_path):
-    client = TelegramClient('session_name', api_id, api_hash)
+    client = TelegramClient(session_path, api_id, api_hash)
     await client.start()
 
     if not await client.is_user_authorized():
