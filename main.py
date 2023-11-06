@@ -8,9 +8,11 @@ from telethon import TelegramClient, utils
 import asyncio
 import argparse
 import os
+import sys
 
 api_id = '<app id>'
 api_hash = '<app hash>'
+
 home = os.path.expanduser("~")
 session_path = os.path.join(home, ".telegram_file_sender/session_name")
 
@@ -19,6 +21,12 @@ if not os.path.exists(session_folder):
     os.makedirs(session_folder)
 
 async def main(file_path):
+    
+    async def progress_callback(current, total):
+        percentage = current / total * 100
+        sys.stdout.write(f"\rUploaded {current} out of {total} bytes: {percentage:.2f}%")
+        sys.stdout.flush()
+    
     client = TelegramClient(session_path, api_id, api_hash)
     await client.start()
 
@@ -35,7 +43,8 @@ async def main(file_path):
     choice = int(input("Enter the number: ")) - 1
     target = dialogs[choice]
 
-    await client.send_file(target.id, file_path)
+    await client.send_file(target.id, file_path, progress_callback=progress_callback)
+    print("\nFile sent successfully.")
     await client.disconnect()
 
 if __name__ == "__main__":
